@@ -651,27 +651,11 @@ require('lazy').setup({
       ---@type table<string, vim.lsp.Config>
       local servers = {
         -- clangd = {},
+	cssls = {},
+	emmet_ls = {},
         gopls = {},
+	html = {},
         jsonls = {},
-        marksman = {},
-        -- rust_analyzer = {},
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        ts_ls = {},
-
-        ruff = {
-          init_options = {
-            settings = {
-              -- Optional: Ruff language server settings go here
-            },
-          },
-        },
-
-        stylua = {}, -- Used to format Lua code
-
         -- Special Lua Config, as recommended by neovim help docs
         lua_ls = {
           on_init = function(client)
@@ -700,7 +684,7 @@ require('lazy').setup({
             Lua = {},
           },
         },
-
+        marksman = {},
         -- Python
         basedpyright = {
           settings = {
@@ -714,6 +698,21 @@ require('lazy').setup({
             },
           },
         },
+        ruff = {
+          init_options = {
+            settings = {
+              -- Optional: Ruff language server settings go here
+            },
+          },
+        },
+        -- rust_analyzer = {},
+        stylua = {}, -- Used to format Lua code
+        --
+        -- Some languages (like typescript) have entire language plugins that can be useful:
+        --    https://github.com/pmizio/typescript-tools.nvim
+        --
+        -- But for many setups, the LSP (`ts_ls`) will work just fine
+        ts_ls = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -726,6 +725,8 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         -- You can add other tools here that you want Mason to install
+	'stylua',
+	'prettier',
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -768,6 +769,8 @@ require('lazy').setup({
         end
       end,
       formatters_by_ft = {
+	css = { 'prettier' },
+	html = { 'prettier' },
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = {
@@ -964,7 +967,7 @@ require('lazy').setup({
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter-intro`
     config = function()
       -- ensure basic parser are installed
-      local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+      local parsers = { 'bash', 'c', 'css', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
       require('nvim-treesitter').install(parsers)
 
       ---@param buf integer
@@ -1045,6 +1048,10 @@ require('lazy').setup({
       { '-', '<CMD>Oil<CR>', desc = 'Open parent directory' },
     },
   },
+
+  -- HTML/CSS development plugins.
+  { 'windwp/nvim-ts-autotag', opts = {} },
+  { 'NvChad/nvim-colorizer.lua', opts = { user_default_options = { css = true } } },
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
