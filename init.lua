@@ -634,9 +634,7 @@ require('lazy').setup({
         group = vim.api.nvim_create_augroup('lsp_attach_disable_ruff_hover', { clear = true }),
         callback = function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
-          if client == nil then
-            return
-          end
+          if client == nil then return end
           if client.name == 'ruff' then
             -- Disable hover in favor of basedpyright
             client.server_capabilities.hoverProvider = false
@@ -651,10 +649,10 @@ require('lazy').setup({
       ---@type table<string, vim.lsp.Config>
       local servers = {
         -- clangd = {},
-	cssls = {},
-	emmet_ls = {},
+        cssls = {},
+        emmet_ls = {},
         gopls = {},
-	html = {},
+        html = {},
         jsonls = {},
         -- Special Lua Config, as recommended by neovim help docs
         lua_ls = {
@@ -725,8 +723,8 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         -- You can add other tools here that you want Mason to install
-	'stylua',
-	'prettier',
+        'stylua',
+        'prettier',
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -769,8 +767,8 @@ require('lazy').setup({
         end
       end,
       formatters_by_ft = {
-	css = { 'prettier' },
-	html = { 'prettier' },
+        css = { 'prettier' },
+        html = { 'prettier' },
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = {
@@ -907,9 +905,7 @@ require('lazy').setup({
     'AlexvZyl/nordic.nvim',
     lazy = false,
     priority = 1000,
-    config = function()
-      require('nordic').load()
-    end,
+    config = function() require('nordic').load() end,
   },
 
   -- Highlight todo, notes, etc in comments
