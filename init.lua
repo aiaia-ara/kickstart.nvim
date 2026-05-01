@@ -122,6 +122,9 @@ vim.o.breakindent = true
 -- Enable undo/redo changes even after closing and reopening a file
 vim.o.undofile = true
 
+-- Re-read files when they change on disk (e.g. edits made by Claude Code)
+vim.o.autoread = true
+
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.o.ignorecase = true
 vim.o.smartcase = true
@@ -255,6 +258,16 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function() vim.hl.on_yank() end,
+})
+
+-- Trigger :checktime on focus, buffer entry, and cursor idle so external
+-- edits (e.g. from Claude Code) are picked up automatically.
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
+  desc = 'Reload buffer when file changes on disk',
+  group = vim.api.nvim_create_augroup('kickstart-auto-checktime', { clear = true }),
+  callback = function()
+    if vim.fn.mode() ~= 'c' then vim.cmd 'checktime' end
+  end,
 })
 
 -- [[ Install `lazy.nvim` plugin manager ]]
