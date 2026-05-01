@@ -270,6 +270,20 @@ vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHo
   end,
 })
 
+-- Force 2-space indentation for shell scripts.
+-- This runs after guess-indent.nvim has inferred indentation from the file,
+-- so that newly-typed indents match what shfmt produces on save (which is
+-- configured for 2 spaces in the conform.nvim setup below).
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'sh', 'bash' },
+  callback = function()
+    vim.bo.shiftwidth = 2
+    vim.bo.tabstop = 2
+    vim.bo.softtabstop = 2
+    vim.bo.expandtab = true
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -717,7 +731,7 @@ require('lazy').setup({
           },
         },
         -- rust_analyzer = {},
-        stylua = {}, -- Used to format Lua code
+        -- stylua = {}, -- Used to format Lua code
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
         --    https://github.com/pmizio/typescript-tools.nvim
@@ -738,6 +752,7 @@ require('lazy').setup({
         -- You can add other tools here that you want Mason to install
         'stylua',
         'prettier',
+        'shfmt',
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -780,8 +795,12 @@ require('lazy').setup({
         end
       end,
       formatters_by_ft = {
+        bash = { 'shfmt' },
         css = { 'prettier' },
         html = { 'prettier' },
+        --
+        -- You can use 'stop_after_first' to run the first available formatter from the list
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = {
@@ -792,9 +811,12 @@ require('lazy').setup({
           -- To organize the imports.
           'ruff_organize_imports',
         },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        sh = { 'shfmt' },
+      },
+      formatters = {
+        shfmt = {
+          args = { '-i', '2', '-ci', '-bn' },
+        },
       },
     },
   },
