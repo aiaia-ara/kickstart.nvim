@@ -99,7 +99,7 @@ do
   vim.g.maplocalleader = ' '
 
   -- Set to true if you have a Nerd Font installed and selected in the terminal
-  vim.g.have_nerd_font = false
+  vim.g.have_nerd_font = true
 
   -- [[ Setting options ]]
   --  See `:help vim.o`
@@ -110,7 +110,7 @@ do
   vim.o.number = true
   -- You can also add relative line numbers, to help with jumping.
   --  Experiment for yourself to see if you like it!
-  -- vim.o.relativenumber = true
+  vim.o.relativenumber = true
 
   -- Enable mouse mode, can be useful for resizing splits for example!
   vim.o.mouse = 'a'
@@ -171,6 +171,17 @@ do
   -- instead raise a dialog asking if you wish to save the current file(s)
   -- See `:help 'confirm'`
   vim.o.confirm = true
+
+  -- Re-read files changed on disk.
+  vim.o.autoread = true
+
+  -- Auto-break inserted text at 79 columns (needs 't' in formatoptions).
+  vim.o.textwidth = 79
+  -- Draw a vertical guide line at 'textwidth + 1'.
+  vim.o.colorcolumn = '+1'
+
+  -- Don't visually wrap long lines; let them run off-screen.
+  vim.o.wrap = false
 end
 
 -- ============================================================
@@ -251,6 +262,27 @@ do
     group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
     callback = function() vim.hl.on_yank() end,
   })
+
+  -- Pick up external edits (e.g. from Claude Code) automatically.
+  vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
+    desc = 'Reload buffer when file changes on disk',
+    group = vim.api.nvim_create_augroup('kickstart-auto-checktime', { clear = true }),
+    callback = function()
+      if vim.fn.mode() ~= 'c' then vim.cmd 'checktime' end
+    end,
+  })
+
+  -- Force 2-space indentation for shell scripts (matches shfmt config below).
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = { 'sh', 'bash' },
+    callback = function()
+      vim.bo.shiftwidth = 2
+      vim.bo.tabstop = 2
+      vim.bo.softtabstop = 2
+      vim.bo.expandtab = true
+    end,
+  })
+
 end
 
 -- ============================================================
@@ -382,18 +414,20 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
-  ---@diagnostic disable-next-line: missing-fields
-  require('tokyonight').setup {
-    styles = {
-      comments = { italic = false }, -- Disable italics in comments
-    },
-  }
+  -- vim.pack.add { gh 'folke/tokyonight.nvim' }
+  -- ---@diagnostic disable-next-line: missing-fields
+  -- require('tokyonight').setup {
+  --   styles = {
+  --     comments = { italic = false }, -- Disable italics in comments
+  --   },
+  -- }
+  vim.pack.add { gh 'AlexvZyl/nordic.nvim' }
+  require('nordic').load()
 
   -- Load the colorscheme here.
   -- Like many other themes, this one has different styles, and you could load
   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-night'
+  -- vim.cmd.colorscheme 'tokyonight-night'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -494,12 +528,19 @@ do
     -- You can put your default mappings / updates / etc. in here
     --  All the info you're looking for is in `:help telescope.setup()`
     --
-    -- defaults = {
-    --   mappings = {
-    --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-    --   },
+    defaults = {
+      hidden = true,
+      no_ignore = true,
+    -- mappings = {
+    --   i = { ['<c-enter>'] = 'to_fuzzy_refine' },
     -- },
-    -- pickers = {}
+    },
+    pickers = {
+      find_files = {
+        hidden = true,
+        no_ignore = true,
+      },
+    },
     extensions = {
       ['ui-select'] = { require('telescope.themes').get_dropdown() },
     },
@@ -687,21 +728,52 @@ do
     end,
   })
 
+  vim.api.nvim_create_autocmd('LspAttach', {
+    group = vim.api.nvim_create_augroup('lsp_attach_disable_ruff_hover', { clear = true }),
+    callback = function(args)
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      if client and client.name == 'ruff' then
+        client.server_capabilities.hoverProvider = false
+      end
+    end,
+    desc = 'LSP: Disable hover capability from Ruff',
+  })
+
   -- Enable the following language servers
   --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
   --  See `:help lsp-config` for information about keys and how to configure
   ---@type table<string, vim.lsp.Config>
   local servers = {
-    -- clangd = {},
-    -- gopls = {},
+    clangd = {},
+    cssls = {},
+    emmet_ls = {},
+    gopls = {},
+    html = {},
+    jsonls = {},
+    marksman = {},
+    basedpyright = {
+      settings = {
+        basedpyright = {
+          -- Use Ruff's import organizer.
+          disableOrganizeImports = true,
+          -- Lint exclusively via Ruff.
+          analysis = { ignore = { '*' } },
+        },
+      },
+    },
     -- pyright = {},
+    ruff = {
+      init_options = {
+        settings = {},
+      },
+    },
     -- rust_analyzer = {},
     --
     -- Some languages (like typescript) have entire language plugins that can be useful:
     --    https://github.com/pmizio/typescript-tools.nvim
     --
     -- But for many setups, the LSP (`ts_ls`) will work just fine
-    -- ts_ls = {},
+    ts_ls = {},
 
     stylua = {}, -- Used to format Lua code
 
@@ -763,6 +835,9 @@ do
   local ensure_installed = vim.tbl_keys(servers or {})
   vim.list_extend(ensure_installed, {
     -- You can add other tools here that you want Mason to install
+    'clang-format',
+    'prettier',
+    'shfmt',
   })
 
   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -785,8 +860,18 @@ do
     format_on_save = function(bufnr)
       -- You can specify filetypes to autoformat on save here:
       local enabled_filetypes = {
-        -- lua = true,
-        -- python = true,
+        bash = true,
+        c = true,
+        cpp = true,
+        css = true,
+        go = true,
+        html = true,
+        javascript = true,
+        json = true,
+        lua = true,
+        python = true,
+        sh = true,
+        typescript = true,
       }
       if enabled_filetypes[vim.bo[bufnr].filetype] then
         return { timeout_ms = 500 }
@@ -799,12 +884,22 @@ do
     },
     -- You can also specify external formatters in here.
     formatters_by_ft = {
-      -- rust = { 'rustfmt' },
+      bash = { 'shfmt' },
+      c = { 'clang_format' },
+      cpp = { 'clang_format' },
+      css = { 'prettier' },
+      html = { 'prettier' },
+      -- You can use 'stop_after_first' to run the first available formatter from the list
+      javascript = { 'prettierd', 'prettier', stop_after_first = true },
+      lua = { 'stylua' },
       -- Conform can also run multiple formatters sequentially
       -- python = { "isort", "black" },
-      --
-      -- You can use 'stop_after_first' to run the first available formatter from the list
-      -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      python = { 'ruff_fix', 'ruff_format', 'ruff_organize_imports' },
+      -- rust = { 'rustfmt' },
+      sh = { 'shfmt' },
+    },
+    formatters = {
+      shfmt = { args = { '-i', '2', '-ci', '-bn' } },
     },
   }
 
@@ -979,7 +1074,7 @@ do
   -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- require 'custom.plugins'
+  require 'custom.plugins'
 end
 
 -- The line beneath this is called `modeline`. See `:help modeline`
