@@ -101,6 +101,12 @@ do
   -- Set to true if you have a Nerd Font installed and selected in the terminal
   vim.g.have_nerd_font = true
 
+  -- Force 24-bit color. Neovim otherwise auto-detects it by querying the
+  -- terminal at startup, which fails when started inside a detached tmux
+  -- session (no client attached to answer) — leaving the colorscheme in
+  -- degraded 256-color mode.
+  vim.o.termguicolors = true
+
   -- [[ Setting options ]]
   --  See `:help vim.o`
   -- NOTE: You can change these options as you wish!
@@ -282,7 +288,6 @@ do
       vim.bo.expandtab = true
     end,
   })
-
 end
 
 -- ============================================================
@@ -531,9 +536,9 @@ do
     defaults = {
       hidden = true,
       no_ignore = true,
-    -- mappings = {
-    --   i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-    -- },
+      -- mappings = {
+      --   i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+      -- },
     },
     pickers = {
       find_files = {
@@ -732,9 +737,7 @@ do
     group = vim.api.nvim_create_augroup('lsp_attach_disable_ruff_hover', { clear = true }),
     callback = function(args)
       local client = vim.lsp.get_client_by_id(args.data.client_id)
-      if client and client.name == 'ruff' then
-        client.server_capabilities.hoverProvider = false
-      end
+      if client and client.name == 'ruff' then client.server_capabilities.hoverProvider = false end
     end,
     desc = 'LSP: Disable hover capability from Ruff',
   })
