@@ -107,6 +107,9 @@ do
   -- degraded 256-color mode.
   vim.o.termguicolors = true
 
+  -- Set the background explicitly before loading Nordic colorscheme.
+  vim.o.background = 'dark'
+
   -- [[ Setting options ]]
   --  See `:help vim.o`
   -- NOTE: You can change these options as you wish!
