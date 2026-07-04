@@ -101,10 +101,10 @@ do
   -- Set to true if you have a Nerd Font installed and selected in the terminal
   vim.g.have_nerd_font = true
 
-  -- Force 24-bit color. Neovim otherwise auto-detects it by querying the
-  -- terminal at startup, which fails when started inside a detached tmux
-  -- session (no client attached to answer) — leaving the colorscheme in
-  -- degraded 256-color mode.
+  -- Force 24-bit color. iTerm2 always supports it, so setting this explicitly
+  -- skips Neovim's startup RGB detection (a terminal query negotiated through
+  -- tmux) — colors are correct from the first frame, immune to detection
+  -- hiccups or late replies during slow startups.
   vim.o.termguicolors = true
 
   -- Set the background explicitly before loading Nordic colorscheme.
