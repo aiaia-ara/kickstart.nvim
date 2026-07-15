@@ -768,11 +768,7 @@ do
       },
     },
     -- pyright = {},
-    ruff = {
-      init_options = {
-        settings = {},
-      },
-    },
+    ruff = {},
     -- rust_analyzer = {},
     --
     -- Some languages (like typescript) have entire language plugins that can be useful:
