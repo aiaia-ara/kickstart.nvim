@@ -1,6 +1,4 @@
-local function gh(repo)
-  return 'https://github.com/' .. repo
-end
+local function gh(repo) return 'https://github.com/' .. repo end
 
 vim.pack.add {
   gh 'stevearc/oil.nvim', -- edit the filesystem like a buffer
@@ -9,7 +7,9 @@ vim.pack.add {
 }
 
 -- oil.nvim
-require('mini.icons').setup()
+-- Optional icon provider per the oil.nvim README; init.lua already sets it up
+-- (gated on Nerd Font availability), so it must stay disabled here.
+-- require('mini.icons').setup()
 require('oil').setup {
   view_options = { show_hidden = true },
 }
