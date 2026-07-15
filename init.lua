@@ -809,11 +809,7 @@ do
       },
     },
     -- pyright = {},
-    ruff = {
-      init_options = {
-        settings = {},
-      },
-    },
+    ruff = {},
     -- tsc = {},
     ts_ls = {},
     --
