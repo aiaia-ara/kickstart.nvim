@@ -319,6 +319,17 @@ do
       vim.bo.expandtab = true
     end,
   })
+
+  -- Force 4-space indentation for Java, the common convention.
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'java',
+    callback = function()
+      vim.bo.shiftwidth = 4
+      vim.bo.tabstop = 4
+      vim.bo.softtabstop = 4
+      vim.bo.expandtab = true
+    end,
+  })
 end
 
 -- ============================================================
@@ -824,6 +835,7 @@ do
     emmet_ls = {},
     gopls = {},
     html = {},
+    jdtls = {},
     jsonls = {},
     marksman = {},
     basedpyright = {
@@ -905,8 +917,9 @@ do
   -- You can press `g?` for help in this menu.
   -- PORT: mason auto-installs everything listed here, but several packages
   -- are installed *through* system runtimes: npm (prettier, tsc, html,
-  -- cssls, jsonls, emmet_ls) and python3 (basedpyright). On a fresh machine
-  -- run `:checkhealth mason` to see what's missing.
+  -- cssls, jsonls, emmet_ls) and python3 (basedpyright). jdtls is only
+  -- downloaded, but needs python3 and a Java 21+ JDK (JAVA_HOME or PATH) to
+  -- run. On a fresh machine run `:checkhealth mason` to see what's missing.
   local ensure_installed = vim.tbl_keys(servers or {})
   vim.list_extend(ensure_installed, {
     -- You can add other tools here that you want Mason to install
