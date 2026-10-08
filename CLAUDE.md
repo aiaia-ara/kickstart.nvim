@@ -11,7 +11,7 @@ A personal fork of [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) 
 - **Format**: `stylua .` — run before every commit. Style comes from `.stylua.toml` (160 columns, 2-space indent, single quotes, no call parentheses, collapsed simple statements). Check without writing: `stylua --check .` Note: stylua is not on the shell PATH; it is installed by Mason at `~/.local/share/nvim/mason/bin/stylua`.
 - **Smoke test**: `nvim --headless +qa!` must exit 0 with no error output after any config change. For LSP/plugin-level checks, open a real file headless and inspect `:messages`.
 - **Health check**: `:checkhealth` inside Neovim for deeper diagnosis (Mason installs, clipboard provider, treesitter).
-- **Plugin updates**: `:lua vim.pack.update()` (inspect pending first with `:lua vim.pack.update(nil, { offline = true })`). Tool/LSP installs go through `:Mason`.
+- **Plugin updates**: `:lua vim.pack.update()` (inspect pending first with `:lua vim.pack.update(nil, { offline = true })`). The resulting `nvim-pack-lock.json` change is committed straight to `custom` (see the exception under Git workflow). Tool/LSP installs go through `:Mason`.
 
 ## Architecture
 
@@ -29,4 +29,5 @@ Do not edit `.github/`, `doc/`, or `lua/kickstart/`: keeping them byte-identical
 - `master` mirrors upstream (`upstream` remote = `nvim-lua/kickstart.nvim`). **Never commit directly to `master`**; it is only updated via `git fetch upstream master && git merge upstream/master`, then pushed to `origin`.
 - `custom` is the real config: `master` + personal commits, periodically rebased onto `master` and pushed with `--force-with-lease`.
 - All work happens on feature branches cut from an up-to-date `custom` (`git checkout custom && git pull origin custom && git checkout -b feature/<topic>`), merged back into `custom` via GitHub PR, after which the branch is deleted.
+- **Exception — lockfile-only plugin updates**: a commit that changes nothing but `nvim-pack-lock.json` (the result of `:lua vim.pack.update()`) skips the feature branch and PR. Commit it directly on an up-to-date `custom` as `nvim/plugins: Updated plugins.` and push with a plain `git push origin custom`. If the update also needs a config change, the whole thing goes through the normal feature-branch flow instead.
 - Commit message style: `<area>/<topic>: Past-tense description.` — e.g. `init.lua/background: Set the background explicitly before loading Nordic.`
