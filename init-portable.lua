@@ -838,8 +838,7 @@ do
     },
     -- pyright = {},
     ruff = {},
-    -- tsc = {},
-    ts_ls = {},
+    tsc = {},
     --
     -- Some languages (like rust) have entire language plugins that can be useful:
     --    https://github.com/mrcjkb/rustaceanvim
@@ -905,7 +904,7 @@ do
   --
   -- You can press `g?` for help in this menu.
   -- PORT: mason auto-installs everything listed here, but several packages
-  -- are installed *through* system runtimes: npm (prettier, ts_ls, html,
+  -- are installed *through* system runtimes: npm (prettier, tsc, html,
   -- cssls, jsonls, emmet_ls) and python3 (basedpyright). On a fresh machine
   -- run `:checkhealth mason` to see what's missing.
   local ensure_installed = vim.tbl_keys(servers or {})
