@@ -291,6 +291,17 @@ do
       vim.bo.expandtab = true
     end,
   })
+
+  -- Force 4-space indentation for Java, the common convention.
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'java',
+    callback = function()
+      vim.bo.shiftwidth = 4
+      vim.bo.tabstop = 4
+      vim.bo.softtabstop = 4
+      vim.bo.expandtab = true
+    end,
+  })
 end
 
 -- ============================================================
@@ -796,6 +807,7 @@ do
     emmet_ls = {},
     gopls = {},
     html = {},
+    jdtls = {},
     jsonls = {},
     marksman = {},
     basedpyright = {
