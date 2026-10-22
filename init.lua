@@ -101,6 +101,14 @@ do
   -- Set to true if you have a Nerd Font installed and selected in the terminal
   vim.g.have_nerd_font = true
 
+  -- Disable the legacy remote-plugin providers; no plugin here uses them.
+  -- The python3 one is only the remote-plugin host, so basedpyright, ruff and
+  -- debugpy are unaffected.
+  vim.g.loaded_node_provider = 0
+  vim.g.loaded_perl_provider = 0
+  vim.g.loaded_python3_provider = 0
+  vim.g.loaded_ruby_provider = 0
+
   -- Force 24-bit color. iTerm2 always supports it, so setting this explicitly
   -- skips Neovim's startup RGB detection (a terminal query negotiated through
   -- tmux) — colors are correct from the first frame, immune to detection
@@ -1032,11 +1040,11 @@ do
     -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
     -- which automatically downloads a prebuilt binary when enabled.
     --
-    -- By default, we use the Lua implementation instead, but you may enable
-    -- the rust implementation via `'prefer_rust_with_warning'`
+    -- We use it, falling back to the Lua implementation (with a warning) if
+    -- the binary isn't available.
     --
     -- See `:help blink-cmp-config-fuzzy` for more information
-    fuzzy = { implementation = 'lua' },
+    fuzzy = { implementation = 'prefer_rust_with_warning' },
 
     -- Shows a signature help window while you type arguments for a function
     signature = { enabled = true },
