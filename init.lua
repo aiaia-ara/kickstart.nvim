@@ -815,7 +815,10 @@ do
     emmet_ls = {},
     gopls = {},
     html = {},
-    jdtls = {},
+    jdtls = {
+      -- jdtls 1.62+ needs Java 25 to run; projects still build against their own JDK.
+      cmd_env = { JAVA_HOME = vim.fn.glob(vim.fn.expand '~/.sdkman/candidates/java/25.*-tem', false, true)[1] },
+    },
     jsonls = {},
     marksman = {},
     basedpyright = {
