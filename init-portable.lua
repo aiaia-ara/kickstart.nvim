@@ -843,7 +843,13 @@ do
     emmet_ls = {},
     gopls = {},
     html = {},
-    jdtls = {},
+    jdtls = {
+      -- jdtls 1.62+ needs Java 25 to run; projects still build against their own JDK.
+      -- PORT: assumes a Temurin 25 JDK installed through SDKMAN. Elsewhere, point
+      -- JAVA_HOME at any Java 25 JDK; with no match it falls back to the
+      -- inherited JAVA_HOME/PATH, and jdtls exits with code 13 on older Java.
+      cmd_env = { JAVA_HOME = vim.fn.glob(vim.fn.expand '~/.sdkman/candidates/java/25.*-tem', false, true)[1] },
+    },
     jsonls = {},
     marksman = {},
     basedpyright = {
@@ -926,8 +932,9 @@ do
   -- PORT: mason auto-installs everything listed here, but several packages
   -- are installed *through* system runtimes: npm (prettier, tsc, html,
   -- cssls, jsonls, emmet_ls) and python3 (basedpyright). jdtls is only
-  -- downloaded, but needs python3 and a Java 21+ JDK (JAVA_HOME or PATH) to
-  -- run. On a fresh machine run `:checkhealth mason` to see what's missing.
+  -- downloaded, but needs python3 and a Java 25+ JDK (see its entry in
+  -- `servers`) to run. On a fresh machine run `:checkhealth mason` to see
+  -- what's missing.
   local ensure_installed = vim.tbl_keys(servers or {})
   vim.list_extend(ensure_installed, {
     -- You can add other tools here that you want Mason to install
