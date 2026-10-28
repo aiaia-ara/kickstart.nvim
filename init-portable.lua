@@ -220,8 +220,11 @@ do
   -- Re-read files changed on disk.
   vim.o.autoread = true
 
-  -- Auto-break inserted text at 79 columns (needs 't' in formatoptions).
+  -- Default line width: where comments wrap and 'gw' reflows. Other text is
+  -- never broken while typing ('t' removed); formatters handle code length.
+  -- Widths per file type are set by the 'line-width' autocommand.
   vim.o.textwidth = 79
+  vim.opt.formatoptions:remove 't'
   -- Draw a vertical guide line at 'textwidth + 1'.
   vim.o.colorcolumn = '+1'
 
@@ -336,6 +339,58 @@ do
       vim.bo.tabstop = 4
       vim.bo.softtabstop = 4
       vim.bo.expandtab = true
+    end,
+  })
+
+  -- Line width by file type, from each language's formatter or style guide
+  -- (0 = no limit, no guide line). A project's .editorconfig
+  -- 'max_line_length' wins over these. Rust's ftplugin already sets 100.
+  local line_width = {
+    python = 88, -- Ruff's and Black's default
+    lua = 120, -- StyLua's default
+    sh = 80, -- Google Shell Style Guide
+    bash = 80,
+    zsh = 80,
+    c = 80, -- clang-format's default style
+    cpp = 80,
+    javascript = 80, -- Prettier's default
+    javascriptreact = 80,
+    typescript = 80,
+    typescriptreact = 80,
+    css = 80,
+    html = 80,
+    java = 100, -- Google Java Style Guide
+    go = 0, -- gofmt sets no limit
+    markdown = 0, -- prose has no agreed width: long lines, wrapped on screen
+    text = 0,
+    toml = 0, -- no line-length convention
+    json = 0,
+    jsonc = 0,
+    yaml = 0,
+  }
+  vim.api.nvim_create_autocmd('FileType', {
+    desc = 'Set the line width by file type',
+    group = vim.api.nvim_create_augroup('line-width', { clear = true }),
+    pattern = vim.tbl_keys(line_width),
+    callback = function(args)
+      local ec = vim.b[args.buf].editorconfig
+      if not (type(ec) == 'table' and ec.max_line_length) then vim.bo[args.buf].textwidth = line_width[args.match] end
+      if args.match == 'markdown' or args.match == 'text' then
+        vim.opt_local.wrap = true
+        vim.opt_local.linebreak = true
+      end
+    end,
+  })
+
+  -- blink.cmp turns auto-wrap off while its menu is open and back on with
+  -- ':set', which copies the buffer's 'formatoptions' (Markdown's 't'
+  -- included) into the global value that new buffers start from.
+  vim.api.nvim_create_autocmd('OptionSet', {
+    desc = "Keep 't' out of the global 'formatoptions'",
+    group = vim.api.nvim_create_augroup('formatoptions-global-no-t', { clear = true }),
+    pattern = 'formatoptions',
+    callback = function()
+      if vim.v.option_type == 'global' then vim.opt_global.formatoptions:remove 't' end
     end,
   })
 end

@@ -8,7 +8,7 @@ A personal fork of [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) 
 
 ## Commands
 
-- **Format**: `stylua .` — run before every commit. Style comes from `.stylua.toml` (160 columns, 2-space indent, single quotes, no call parentheses, collapsed simple statements). Check without writing: `stylua --check .` Note: stylua is not on the shell PATH; it is installed by Mason at `~/.local/share/nvim/mason/bin/stylua`.
+- **Format**: `stylua .` — run before every commit. Style comes from `.stylua.toml` (160 columns, 2-space indent, single quotes, no call parentheses, collapsed simple statements). `.editorconfig` repeats the 160-column width for `*.lua` so Neovim's guide line matches; change the two together. Check without writing: `stylua --check .` Note: stylua is not on the shell PATH; it is installed by Mason at `~/.local/share/nvim/mason/bin/stylua`.
 - **Smoke test**: `nvim --headless +qa!` must exit 0 with no error output after any config change. For LSP/plugin-level checks, open a real file headless and inspect `:messages`.
 - **Health check**: `:checkhealth` inside Neovim for deeper diagnosis (Mason installs, clipboard provider, treesitter).
 - **Plugin updates**: `:lua vim.pack.update()` (inspect pending first with `:lua vim.pack.update(nil, { offline = true })`). The resulting `nvim-pack-lock.json` change is committed straight to `custom` (see the exception under Git workflow). Tool/LSP installs go through `:Mason`.

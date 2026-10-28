@@ -1,0 +1,9 @@
+# EditorConfig: settings that editors read on their own.
+# https://editorconfig.org
+
+# Stop here; do not look in the folders above this one.
+root = true
+
+# Lua: the width StyLua formats this config to (column_width in .stylua.toml).
+[*.lua]
+max_line_length = 160
